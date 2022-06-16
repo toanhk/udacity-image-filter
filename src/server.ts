@@ -14,22 +14,22 @@ import { log } from 'console';
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
-  app.get("/filteredimage/", async (req, res) => {
+  app.get("/filteredimage", async (req: express.Request, res: express.Response) => {
 
-   try {
-    let { image_url } = req.query;
-    
-    if (!image_url) {
-      return res.status(400).send('Bad request!');
+    try {
+      let { image_url } = req.query;
+
+      if (!image_url) {
+        return res.status(400).send('Bad request!');
+      }
+      const url = await filterImageFromURL(image_url);
+      res.status(200).sendFile(url);
+      res.on("finish", () => deleteLocalFiles([url]));
+    } catch (error) {
+      res.status(500).send('Unable to process');
     }
-    const url = await filterImageFromURL(image_url);
-    res.status(200).sendFile(url);
-    res.on("finish", () => deleteLocalFiles([url]));
-   } catch (error) {
-    res.status(500).send('Unable to process');
-   }
-    
-   
+
+
   });
 
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
